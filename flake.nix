@@ -46,5 +46,14 @@
       darwinConfigurations."s1" = nix-darwin.lib.darwinSystem {
         modules = [ configuration ];
       };
+      darwinConfigurations."s2" = nix-darwin.lib.darwinSystem {
+        modules = [ configuration ];
+      };
+      darwinConfigurations."s3" = nix-darwin.lib.darwinSystem {
+        modules = [ configuration ];
+      };
+      darwinConfigurations."s4" = nix-darwin.lib.darwinSystem {
+        modules = [ configuration ];
+      };
     };
 }
