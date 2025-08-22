@@ -23,6 +23,7 @@
             just
             gh
             lazygit
+	    ripgrep
             nixfmt-tree
           ];
 
