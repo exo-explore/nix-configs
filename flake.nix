@@ -17,6 +17,23 @@
       configuration =
         { pkgs, ... }:
         {
+          power = {
+            enable = true;
+
+    		settings = {
+      		# Apply to both charger and battery
+      		displaysleep = 0;  # never turn off display
+      		sleep        = 0;  # never system sleep
+      		disksleep    = 0;  # never spin down disks
+    		};
+  		  };
+          services = {
+            # SSH server
+            openssh.enable = true;
+		    # Tailscale
+		    tailscale.enable = true;
+          };
+
           environment.systemPackages = with pkgs; [
             vim
             git
@@ -25,6 +42,8 @@
             lazygit
 	        ripgrep
             nixfmt-tree
+            tailscale
+		    darwin.PowerManagement
           ];
 
           programs.zsh = {
