@@ -23,7 +23,7 @@
             just
             gh
             lazygit
-	    ripgrep
+	        ripgrep
             nixfmt-tree
           ];
 
@@ -39,6 +39,7 @@
           system.stateVersion = 6;
           nixpkgs.hostPlatform = "aarch64-darwin";
           nix.settings.experimental-features = "nix-command flakes";
+		  nix.enable = false;
         };
     in
     {
@@ -54,6 +55,12 @@
         modules = [ configuration ];
       };
       darwinConfigurations."s4" = nix-darwin.lib.darwinSystem {
+        modules = [ configuration ];
+      };
+      darwinConfigurations."s16" = nix-darwin.lib.darwinSystem {
+        modules = [ configuration ];
+      };
+      darwinConfigurations."s18" = nix-darwin.lib.darwinSystem {
         modules = [ configuration ];
       };
     };
