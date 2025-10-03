@@ -55,7 +55,7 @@
           # Don't change unless you really know what you're doing
           system.stateVersion = 6;
           nixpkgs.hostPlatform = "aarch64-darwin";
-          nix.settings.experimental-features = "nix-command flakes";
+          nix.settings.extra-experimental-features = ["nix-command" "flakes"];
 		  nix.enable = false;
         };
     in
