@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 if [ -f ~/nix-configs/flake.lock ]; then
-        cd ~/nix-configs || exit 1
+        cd ~/nix-configs
 else
-        git clone https://github.com/exo-explore/nix-configs ~/nix-configs
-        cd ~/nix-configs || exit 1
+        cd ~
+        curl -fsSL https://github.com/exo-explore/nix-configs/archive/refs/heads/main.zip -o main.zip
+        unzip main.zip -d ~/nix-configs
+        rm main.zip
+        cd ~/nix-configs
 fi
 NIX=/nix/var/nix/profiles/default/bin/nix
 if $NIX --version >/dev/null 2>&1; then
