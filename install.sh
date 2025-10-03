@@ -52,16 +52,19 @@ Host github.com
   IdentityFile ~/.ssh/exogru_gh_key
   IdentitiesOnly yes
 EOF
+                echo "Copied github keyfile"
                 # And, reclone the flake as a git repo instead of as a tarball
                 if [ ! -d "$CONFIG_DIR/.git" ]; then
                         rm -rf "$CONFIG_DIR"
                         git clone git@github.com:exo-explore/nix-configs "$CONFIG_DIR"
                         run_rebuild
+                        echo "Recloned flake"
                 fi
         fi
 
         if [ -n "$TS_KEY" ]; then
                 sudo tailscale up --authkey "$TS_KEY"
+                echo "Authenticated tailscale"
         fi
 
 fi
