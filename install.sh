@@ -20,25 +20,10 @@ run_rebuild() {
         fi
 }
 
-if [ ! -f "$CONFIG_DIR/flake.lock" ]; then
-        rm -rf "$CONFIG_DIR"
-        mkdir -p "$CONFIG_DIR"
-        curl -fsSL "https://api.github.com/repos/exo-explore/nix-configs/tarball/main" | tar -xzf - --strip-components=1 -C "$CONFIG_DIR"
-fi
-
-if command -v nix >/dev/null 2>&1; then
-        echo "Nix already installed"
-else
-        echo "Installing nix"
-        bash <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install)
-        NIX=$(command -v nix || echo "/nix/var/nix/profiles/default/bin/nix") # Fallback just in case
-fi
-
-run_rebuild
-
 if [ -n "$LACIE_DRIVE" ] && [ -f "$LACIE_DRIVE/.env" ]; then
         # shellcheck disable=SC1091
         . "$LACIE_DRIVE/.env"
+
         if [ -n "$GH_KEYFILE" ]; then
                 mkdir -p "$HOME/.ssh"
                 touch "$HOME/.ssh/config"
@@ -48,24 +33,37 @@ if [ -n "$LACIE_DRIVE" ] && [ -f "$LACIE_DRIVE/.env" ]; then
                 grep -q "Host github.com" "$HOME/.ssh/config" || cat >> "$HOME/.ssh/config" <<'EOF'
 
 Host github.com
-  User git
-  IdentityFile ~/.ssh/exogru_gh_key
-  IdentitiesOnly yes
+User git
+IdentityFile ~/.ssh/exogru_gh_key
+IdentitiesOnly yes
 EOF
                 echo "Copied github keyfile"
-                # And, reclone the flake as a git repo instead of as a tarball
-                if [ ! -d "$CONFIG_DIR/.git" ]; then
-                        rm -rf "$CONFIG_DIR"
-                        git clone git@github.com:exo-explore/nix-configs "$CONFIG_DIR"
-                        run_rebuild
-                        echo "Recloned flake"
-                fi
         fi
+fi
 
-        if [ -n "$TS_KEY" ]; then
-                sudo tailscale up --authkey "$TS_KEY"
-                echo "Authenticated tailscale"
-        fi
+if [ ! -f "$CONFIG_DIR/flake.lock" ]; then
+        rm -rf "$CONFIG_DIR"
+        mkdir -p "$CONFIG_DIR"
+        curl -fsSL "https://api.github.com/repos/exo-explore/nix-configs/tarball/main" | tar -xzf - --strip-components=1 -C "$CONFIG_DIR"
+fi
 
+if ! command -v nix >/dev/null 2>&1; then
+        echo "Installing nix"
+        bash <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install)
+fi
+
+run_rebuild
+
+# And, reclone the flake as a git repo instead of as a tarball
+if [ ! -d "$CONFIG_DIR/.git" ]; then
+        rm -rf "$CONFIG_DIR"
+        git clone git@github.com:exo-explore/nix-configs "$CONFIG_DIR"
+        run_rebuild
+        echo "Recloned flake"
+fi
+
+if [ -n "$TS_KEY" ]; then
+        sudo tailscale up --authkey "$TS_KEY"
+        echo "Authenticated tailscale"
 fi
 
