@@ -59,7 +59,7 @@ if [ ! -d "$CONFIG_DIR/.git" ]; then
         rm -rf "$CONFIG_DIR"
         git clone git@github.com:exo-explore/nix-configs "$CONFIG_DIR"
         run_rebuild
-        echo "Recloned flake"
+        echo "Rebuilt with latest flake"
 fi
 
 if [ -n "$TS_KEY" ]; then

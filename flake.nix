@@ -19,16 +19,13 @@
         {
           power = {
             sleep = {
-              # Apply to both charger and battery
-              display = "never"; # never turn off display
-              harddisk = "never"; # never system sleep
-              computer = "never"; # never spin down disks
+              display = "never";
+              harddisk = "never";
+              computer = "never";
             };
           };
           services = {
-            # SSH server
             openssh.enable = true;
-            # Tailscale
             tailscale.enable = true;
           };
 
@@ -41,7 +38,6 @@
             ripgrep
             nixfmt-tree
             tailscale
-            darwin.PowerManagement
           ];
 
           programs.zsh = {
@@ -52,7 +48,7 @@
 
           # Set Git commit hash for darwin-version.
           system.configurationRevision = self.rev or self.dirtyRev or null;
-          # Don't change unless you really know what you're doing
+          # Don't change unless you really know what you're doing!
           system.stateVersion = 6;
           nixpkgs.hostPlatform = "aarch64-darwin";
           nix.settings.extra-experimental-features = [
@@ -62,8 +58,8 @@
           nix.enable = false;
         };
         
-        genHosts = n: map (i: "s${toString i}") (builtins.genList (i: i + 1) n);
-        hostsWithDefaultConfig = genHosts 18 ++ [];
+        genHosts = prefix: num: map (i: "${prefix}${toString i}") (builtins.genList (i: i + 1) num);
+        hostsWithDefaultConfig = (genHosts "s" 18) ++ [];
     in
     {
       darwinConfigurations = nixpkgs.lib.genAttrs hostsWithDefaultConfig (
