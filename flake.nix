@@ -20,9 +20,9 @@
           power = {
     		sleep = {
       		# Apply to both charger and battery
-      		display = 0;  # never turn off display
-      		harddisk = 0;  # never system sleep
-      		computer = 0;  # never spin down disks
+      		display = "never";  # never turn off display
+      		harddisk = "never";  # never system sleep
+      		computer = "never";  # never spin down disks
     		};
   		  };
           services = {
