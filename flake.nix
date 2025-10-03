@@ -8,7 +8,7 @@
   };
 
   outputs =
-    inputs@{
+    {
       self,
       nix-darwin,
       nixpkgs,
@@ -66,7 +66,7 @@
         hostsWithDefaultConfig = genHosts 18 ++ [];
     in
     {
-      darwinConfigurations = nixpkgs.legacyPackages.lib.genAttrs hostsWithDefaultConfig (
+      darwinConfigurations = nixpkgs.lib.genAttrs hostsWithDefaultConfig (
         _:
         nix-darwin.lib.darwinSystem {
           modules = [ configuration ];
