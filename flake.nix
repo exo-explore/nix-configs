@@ -18,18 +18,18 @@
         { pkgs, ... }:
         {
           power = {
-    		sleep = {
-      		# Apply to both charger and battery
-      		display = "never";  # never turn off display
-      		harddisk = "never";  # never system sleep
-      		computer = "never";  # never spin down disks
-    		};
-  		  };
+            sleep = {
+              # Apply to both charger and battery
+              display = "never"; # never turn off display
+              harddisk = "never"; # never system sleep
+              computer = "never"; # never spin down disks
+            };
+          };
           services = {
             # SSH server
             openssh.enable = true;
-		    # Tailscale
-		    tailscale.enable = true;
+            # Tailscale
+            tailscale.enable = true;
           };
 
           environment.systemPackages = with pkgs; [
@@ -38,10 +38,10 @@
             just
             gh
             lazygit
-	        ripgrep
+            ripgrep
             nixfmt-tree
             tailscale
-		    darwin.PowerManagement
+            darwin.PowerManagement
           ];
 
           programs.zsh = {
@@ -55,30 +55,22 @@
           # Don't change unless you really know what you're doing
           system.stateVersion = 6;
           nixpkgs.hostPlatform = "aarch64-darwin";
-          nix.settings.extra-experimental-features = ["nix-command" "flakes"];
-		  nix.enable = false;
+          nix.settings.extra-experimental-features = [
+            "nix-command"
+            "flakes"
+          ];
+          nix.enable = false;
         };
+        
+        genHosts = n: map (i: "s${toString i}") (builtins.genList (i: i + 1) n);
+        hostsWithDefaultConfig = genHosts 18 ++ [];
     in
     {
-      # Build darwin flake using:
-      # $ darwin-rebuild build --flake .#s1
-      darwinConfigurations."s1" = nix-darwin.lib.darwinSystem {
-        modules = [ configuration ];
-      };
-      darwinConfigurations."s2" = nix-darwin.lib.darwinSystem {
-        modules = [ configuration ];
-      };
-      darwinConfigurations."s3" = nix-darwin.lib.darwinSystem {
-        modules = [ configuration ];
-      };
-      darwinConfigurations."s4" = nix-darwin.lib.darwinSystem {
-        modules = [ configuration ];
-      };
-      darwinConfigurations."s16" = nix-darwin.lib.darwinSystem {
-        modules = [ configuration ];
-      };
-      darwinConfigurations."s18" = nix-darwin.lib.darwinSystem {
-        modules = [ configuration ];
-      };
+      darwinConfigurations = nixpkgs.legacyPackages.lib.genAttrs hostsWithDefaultConfig (
+        _:
+        nix-darwin.lib.darwinSystem {
+          modules = [ configuration ];
+        }
+      );
     };
 }
