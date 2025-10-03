@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
-bash <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install)
+if nix --version >/dev/null 2>&1; then
+        echo "Nix already installed"
+else
+        echo "Installing nix"
+        bash <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install)
+fi
 cd ~ || exit 1
 git clone https://github.com/exo-explore/nix-configs
 cd nix-configs || exit 1
