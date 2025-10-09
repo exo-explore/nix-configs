@@ -5,6 +5,9 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nix-darwin.url = "github:nix-darwin/nix-darwin/master";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
+    nix-homebrew.url = "github:zhaofengli/nix-homebrew";
+    home-manager.url = "github:nix-community/home-manager";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
@@ -40,11 +43,14 @@
             tailscale
           ];
 
-          programs.zsh = {
+          homebrew = {
             enable = true;
-            interactiveShellInit = ''eval "$(direnv hook zsh)"'';
+            onActivation = {
+              autoUpdate = true;
+              cleanup = "uninstall";
+              upgrade = true;
+            };
           };
-          programs.direnv.enable = true;
 
           # Set Git commit hash for darwin-version.
           system.configurationRevision = self.rev or self.dirtyRev or null;
@@ -55,11 +61,35 @@
             "nix-command"
             "flakes"
           ];
-          nix.enable = false;
         };
+      homeConfig = {
+        programs.zsh = {
+          enable = true;
+          interactiveShellInit = ''eval "$(direnv hook zsh)"'';
+        };
+        programs.direnv.enable = true;
+      };
+      homeManagerConfig = username: {
+        home-manager.useGlobalPkgs = true;
+        home-manager.users.${username} = homeConfig;
+      };
+      homebrewConfig = username: {
+        nix-homebrew = {
+          enable = true;
+          user = username;
+        };
+      };
         
-        genHosts = prefix: num: map (i: "${prefix}${toString i}") (builtins.genList (i: i + 1) num);
-        hostsWithDefaultConfig = (genHosts "s" 18) ++ [];
+      genHosts = prefix: num: map (i: "${prefix}${toString i}") (builtins.genList (i: i + 1) num);
+      hostsWithDefaultConfig = (genHosts "s" 18) ++ [];
+      defaultModules = username: [ 
+        configuration
+        nix-homebrew.darwinModules.nix-homebrew
+        (homebrewConfig username)
+        home-manager.darwinModules.home-manager
+        homeManagerConfig
+        (homeManagerConfig username)
+      ];
     in
     {
       darwinConfigurations = nixpkgs.lib.genAttrs hostsWithDefaultConfig (
