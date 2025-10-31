@@ -17,13 +17,6 @@
       configuration =
         { pkgs, ... }:
         {
-          power = {
-            sleep = {
-              display = "never";
-              harddisk = "never";
-              computer = "never";
-            };
-          };
           services = {
             openssh.enable = true;
             tailscale.enable = true;
@@ -55,17 +48,19 @@
             "nix-command"
             "flakes"
           ];
-          nix.enable = false;
         };
         
         genHosts = prefix: num: map (i: "${prefix}${toString i}") (builtins.genList (i: i + 1) num);
-        hostsWithDefaultConfig = (genHosts "s" 18) ++ [];
+        hostsWithDefaultConfig = (genHosts "s" 18) ++ (genHosts "puffin" 16) ++ ["helios" "selene"];
     in
     {
       darwinConfigurations = nixpkgs.lib.genAttrs hostsWithDefaultConfig (
-        _:
+        name:
         nix-darwin.lib.darwinSystem {
-          modules = [ configuration ];
+          modules = [ 
+            { networking.hostName = name; }
+            configuration 
+          ];
         }
       );
     };
