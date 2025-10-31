@@ -17,6 +17,13 @@
       configuration =
         { pkgs, ... }:
         {
+          power = {
+            sleep = {
+              display = "never";
+              harddisk = "never";
+              computer = "never";
+            };
+          };
           services = {
             openssh.enable = true;
             tailscale.enable = true;
