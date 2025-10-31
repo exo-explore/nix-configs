@@ -39,6 +39,7 @@
             nixfmt-tree
             tailscale
 	    python3
+	    awscli2
           ];
 
           programs.zsh = {
