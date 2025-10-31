@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -eo pipefail
 
 CONFIG_DIR="$HOME/nix-configs"
 LACIE_DRIVE="/volumes/LaCie"
@@ -10,6 +10,8 @@ run_rebuild() {
         local OS
         OS=$(uname -s)
         cd "$CONFIG_DIR" || exit 1
+        [ -f /etc/bashrc ] && sudo mv /etc/bashrc /etc/bashrc.before-darwin
+        [ -f /etc/zshrc ] && sudo mv /etc/zshrc /etc/zshrc.before-darwin
         if [ "$OS" = "Darwin" ]; then
                 sudo "$NIX" --extra-experimental-features "nix-command flakes" run nix-darwin/master#darwin-rebuild -- switch --flake .#"$(whoami)"
         elif [ "$OS" = "Linux" ]; then
@@ -18,6 +20,7 @@ run_rebuild() {
                 echo "Unsupported os $OS"
                 exit 1
         fi
+	[ -e /etc/bashrc ] && . /etc/bashrc
 }
 
 if [ -n "$LACIE_DRIVE" ] && [ -f "$LACIE_DRIVE/.env" ]; then
@@ -50,14 +53,18 @@ fi
 if ! command -v nix >/dev/null 2>&1; then
         echo "Installing nix"
         bash <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install)
+	NIX_DAEMON=/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+	[ -f "$NIX_DAEMON" ] && . "$NIX_DAEMON"
 fi
 
 run_rebuild
 
+
 # And, reclone the flake as a git repo instead of as a tarball
 if [ ! -d "$CONFIG_DIR/.git" ]; then
+	cd "$HOME"
         rm -rf "$CONFIG_DIR"
-        git clone git@github.com:exo-explore/nix-configs "$CONFIG_DIR"
+        git clone git@github.com:exo-explore/nix-configs
         run_rebuild
         echo "Rebuilt with latest flake"
 fi
