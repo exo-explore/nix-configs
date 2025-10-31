@@ -38,6 +38,7 @@
             ripgrep
             nixfmt-tree
             tailscale
+	    python3
           ];
 
           programs.zsh = {
