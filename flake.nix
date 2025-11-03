@@ -39,6 +39,7 @@
             nixfmt-tree
             tailscale
 	    python3
+	    uv
 	    awscli2
           ];
 
