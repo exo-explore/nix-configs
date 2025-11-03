@@ -68,7 +68,10 @@
         name:
         nix-darwin.lib.darwinSystem {
           modules = [ 
-            { networking.hostName = name; }
+            { 
+	      networking.hostName = name;
+	      system.defaults.loginwindow.autoLoginUser = name;
+	    }
             configuration 
           ];
         }
