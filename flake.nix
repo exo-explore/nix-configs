@@ -41,6 +41,7 @@
 	    python3
 	    uv
 	    awscli2
+            rsync
           ];
 
           programs.zsh = {
