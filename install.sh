@@ -52,7 +52,7 @@ fi
 
 if ! command -v nix >/dev/null 2>&1; then
         echo "Installing nix"
-        bash <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install)
+        bash <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install) --daemon --yes
 	NIX_DAEMON=/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
 	[ -f "$NIX_DAEMON" ] && . "$NIX_DAEMON"
 fi
