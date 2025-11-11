@@ -62,7 +62,7 @@
         };
         
         genHosts = prefix: num: map (i: "${prefix}${toString i}") (builtins.genList (i: i + 1) num);
-        hostsWithDefaultConfig = (genHosts "s" 18) ++ (genHosts "puffin" 16) ++ ["helios" "selene"];
+        hostsWithDefaultConfig = (genHosts "s" 18) ++ (genHosts "puffin" 16) ++ (genHosts "demo" 4) ++ ["helios" "selene"];
     in
     {
       darwinConfigurations = nixpkgs.lib.genAttrs hostsWithDefaultConfig (
