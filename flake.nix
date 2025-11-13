@@ -42,6 +42,7 @@
             uv
             awscli2
             rsync
+            msedit
           ];
 
           programs.zsh = {
