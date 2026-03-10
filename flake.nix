@@ -72,7 +72,7 @@
         ];
 
       updateDarwin = nixpkgs.legacyPackages."aarch64-darwin".writeShellScriptBin "update" ''
-        exec ${nix-darwin.packages."aarch64-darwin".darwin-rebuild}/bin/darwin-rebuild switch --flake github:exo-explore/nix-configs
+        exec ${nix-darwin.packages."aarch64-darwin".darwin-rebuild}/bin/darwin-rebuild switch --flake "github:exo-explore/nix-configs''${1:+#$1}"
       '';
     in
     {
