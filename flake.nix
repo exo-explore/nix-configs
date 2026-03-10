@@ -40,6 +40,7 @@
             tailscale
             python3
             uv
+            updateDarwin
           ];
 
           programs.zsh = {
@@ -69,8 +70,13 @@
           "helios"
           "selene"
         ];
+
+      updateDarwin = nixpkgs.legacyPackages."aarch64-darwin".writeShellScriptBin "update" ''
+        exec ${nix-darwin.packages."aarch64-darwin".darwin-rebuild}/bin/darwin-rebuild switch --flake github:exo-explore/nix-configs
+      '';
     in
     {
+      packages."aarch64-darwin".update = updateDarwin;
       darwinConfigurations = nixpkgs.lib.genAttrs hostsWithDefaultConfig (
         name:
         nix-darwin.lib.darwinSystem {
@@ -78,6 +84,7 @@
             {
               networking.hostName = name;
               system.defaults.loginwindow.autoLoginUser = name;
+              nix.settings.trusted-users = [ "root" name ];
             }
             configuration
           ];
