@@ -30,7 +30,7 @@
           };
 
           environment.systemPackages = with pkgs; [
-            vim
+            neovim
             git
             just
             gh
@@ -40,9 +40,6 @@
             tailscale
             python3
             uv
-            awscli2
-            rsync
-            msedit
           ];
 
           programs.zsh = {
@@ -65,6 +62,7 @@
       genHosts = prefix: num: map (i: "${prefix}${toString i}") (builtins.genList (i: i + 1) num);
       hostsWithDefaultConfig =
         (genHosts "s" 18)
+        ++ (genHosts "e" 18)
         ++ (genHosts "puffin" 16)
         ++ (genHosts "demo" 4)
         ++ [
