@@ -41,6 +41,7 @@
             python3
             uv
             updateDarwin
+            podman
           ];
 
           programs.zsh = {
