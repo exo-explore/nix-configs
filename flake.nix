@@ -8,59 +8,9 @@
   };
 
   outputs =
-    {
-      self,
-      nix-darwin,
-      nixpkgs,
-    }:
+    inputs:
     let
-      configuration =
-        { pkgs, ... }:
-        {
-          power = {
-            sleep = {
-              display = "never";
-              harddisk = "never";
-              computer = "never";
-            };
-          };
-          services = {
-            openssh.enable = true;
-            tailscale.enable = true;
-          };
-
-          environment.systemPackages = with pkgs; [
-            neovim
-            git
-            just
-            gh
-            lazygit
-            ripgrep
-            nixfmt-tree
-            tailscale
-            python3
-            uv
-            updateDarwin
-            podman
-          ];
-
-          programs.zsh = {
-            enable = true;
-            interactiveShellInit = ''eval "$(direnv hook zsh)"'';
-          };
-          programs.direnv.enable = true;
-
-          # Set Git commit hash for darwin-version.
-          system.configurationRevision = self.rev or self.dirtyRev or null;
-          # Don't change unless you really know what you're doing!
-          system.stateVersion = 6;
-          nixpkgs.hostPlatform = "aarch64-darwin";
-          nix.settings.extra-experimental-features = [
-            "nix-command"
-            "flakes"
-          ];
-        };
-
+      inherit (inputs.nixpkgs) lib;
       genHosts = prefix: num: map (i: "${prefix}${toString i}") (builtins.genList (i: i + 1) num);
       hostsWithDefaultConfig =
         (genHosts "s" 18)
@@ -72,22 +22,50 @@
           "selene"
         ];
 
-      updateDarwin = nixpkgs.legacyPackages."aarch64-darwin".writeShellScriptBin "update" ''
-        exec ${nix-darwin.packages."aarch64-darwin".darwin-rebuild}/bin/darwin-rebuild switch --flake "github:exo-explore/nix-configs''${1:+#$1}"
-      '';
+      nixSettings = name: {
+        trusted-users = [ "root" name ];
+        extra-experimental-features = [
+          "nix-command"
+          "flakes"
+        ];
+      };
     in
     {
-      packages."aarch64-darwin".update = updateDarwin;
-      darwinConfigurations = nixpkgs.lib.genAttrs hostsWithDefaultConfig (
+      packages.aarch64-darwin.update = inputs.nixpkgs.legacyPackages."aarch64-darwin".writeShellScriptBin "update" ''
+        exec ${inputs.nix-darwin.packages.aarch64-darwin.darwin-rebuild}/bin/darwin-rebuild switch --flake "github:exo-explore/nix-configs''${1:+#$1}"
+      '';
+      packages.x86_64-linux.update = inputs.nixpkgs.legacyPackages.x86_64-linux.writeShellScriptBin "update" ''
+        exec ${inputs.nixpkgs.legacyPackages.x86_64-linux.nixos-rebuild-ng}/bin/nixos-rebuild switch --flake "github:exo-explore/nix-configs''${1:+#$1}"
+      '';
+      nixosConfigurations = lib.genAttrs [ "minos" ] (name: lib.nixosSystem {
+	specialArgs = { inherit (inputs) self; };
+        modules = [
+	  (./hosts + "/${name}.nix")
+	  (./hosts + "/${name}-hardware.nix")
+	  ./nixos_configuration.nix
+	  {
+            nix.settings = nixSettings name;
+            nixpkgs.config.allowUnfree = true;
+            networking.hostName = name;
+            users.users.${name} = {
+              isNormalUser = true;
+              extraGroups = [ "networkmanager" "wheel" ];
+              # packages = with pkgs; [ ];
+            };
+	  }
+	];
+      });
+      darwinConfigurations = lib.genAttrs hostsWithDefaultConfig (
         name:
-        nix-darwin.lib.darwinSystem {
+        inputs.nix-darwin.lib.darwinSystem {
+	  specialArgs = { inherit (inputs) self; };
           modules = [
             {
+              nix.settings = nixSettings name;
               networking.hostName = name;
               system.defaults.loginwindow.autoLoginUser = name;
-              nix.settings.trusted-users = [ "root" name ];
             }
-            configuration
+            ./darwin_configuration.nix
           ];
         }
       );
